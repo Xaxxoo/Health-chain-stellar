@@ -4,7 +4,6 @@ mod error;
 mod events;
 mod storage;
 mod types;
-mod validation;
 
 #[cfg(test)]
 mod test;
@@ -14,6 +13,10 @@ pub use crate::types::{
     BloodComponent, BloodRequest, BloodType, ContractMetadata, DataKey, RequestCreatedEvent,
     RequestStatus, Urgency,
 };
+
+
+pub use crate::error::ContractError;
+pub use crate::types::{ContractMetadata, DataKey};
 
 use soroban_sdk::{contract, contractimpl, Address, Env};
 
@@ -126,6 +129,33 @@ impl RequestContract {
 
     pub fn is_hospital_authorized(env: Env, hospital: Address) -> bool {
         storage::is_hospital_authorized(&env, &hospital)
+    }
+
+        storage::set_initialized(&env);
+
+        events::emit_initialized(&env, &admin, &inventory_contract);
+
+        Ok(())
+    }
+
+    pub fn get_admin(env: Env) -> Result<Address, ContractError> {
+        storage::require_initialized(&env)?;
+        Ok(storage::get_admin(&env))
+    }
+
+    pub fn get_inventory_contract(env: Env) -> Result<Address, ContractError> {
+        storage::require_initialized(&env)?;
+        Ok(storage::get_inventory_contract(&env))
+    }
+
+    pub fn get_request_counter(env: Env) -> Result<u64, ContractError> {
+        storage::require_initialized(&env)?;
+        Ok(storage::get_request_counter(&env))
+    }
+
+    pub fn get_metadata(env: Env) -> Result<ContractMetadata, ContractError> {
+        storage::require_initialized(&env)?;
+        Ok(storage::get_metadata(&env))
     }
 
     pub fn is_initialized(env: Env) -> bool {

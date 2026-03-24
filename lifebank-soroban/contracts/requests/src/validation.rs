@@ -16,3 +16,4 @@ pub fn validate_quantity(quantity_ml: u32) -> Result<(), ContractError> {
         Ok(())
     }
 }
+// Validation helpers will be added as request lifecycle features are implemented.
