@@ -17,8 +17,11 @@ import { RidersModule } from './riders/riders.module';
 import { DispatchModule } from './dispatch/dispatch.module';
 import { MapsModule } from './maps/maps.module';
 import { NotificationsModule } from './notifications/notifications.module';
+import { OrganizationsModule } from './organizations/organizations.module';
+import { BlockchainModule } from './blockchain/blockchain.module';
 import { BloodUnitsModule } from './blood-units/blood-units.module';
 import { BullModule } from '@nestjs/bullmq';
+import { BullModule as BullClassicModule } from '@nestjs/bull';
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 import { PermissionsGuard } from './auth/guards/permissions.guard';
 import { ScheduleModule } from '@nestjs/schedule';
@@ -92,7 +95,19 @@ import { throttleGetTracker } from './throttler/throttle-tracker.util';
         },
       }),
     }),
+    BullClassicModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        redis: {
+          host: configService.get<string>('REDIS_HOST', 'localhost'),
+          port: configService.get<number>('REDIS_PORT', 6379),
+        },
+      }),
+    }),
     NotificationsModule,
+    BlockchainModule,
+    OrganizationsModule,
     UserActivityModule,
   ],
   controllers: [AppController],
